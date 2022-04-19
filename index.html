@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset=utf-8 />
+    <title>Potentially Gentrified Tracts</title>
+    <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+
+ <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
+   integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="
+   crossorigin=""/>
+<script src="https://unpkg.com/leaflet@1.4.0/dist/leaflet.js"></script>
+    <link href='http://fonts.googleapis.com/css?family=Lato' rel='stylesheet' type='text/css'>
+
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: whitesmoke;
+            font-family: Lato, sans-serif;
+            color: #0D0000;
+        }
+        header {
+            padding: 6px 10%;
+        }
+        h1 {
+            display: inline-block;
+            margin-right: 20px;
+            color: #001323;
+        }
+        h2 {
+            display: inline-block;
+            color: #001323;
+        }
+        #map {
+            width: 80%;
+            height: 540px;
+            margin: 10px auto;
+        }
+        footer {
+            padding: 6px 10%;
+            width: 80%;
+        }
+        p {
+            font-size: 1em;
+            color: #001323;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <h1>Potentially Gentrified Tracts</h1>
+        <h2>Tracts that started out low income and saw disproportionate increases in education and income levels (compared to the MSA) from 2009-2019.</h2>
+    </header>
+
+    <div id='map'></div>
+
+    <footer>
+        <p>Data via Census ACS 5-Year Estimates</p>
+        <p>Additional  about the data and map goes here.</p>
+    </footer>
+
+    <script src="tracts.geojson"></script>
+    <script>
+
+      var map = L.map('map', {
+          center: [39.9527,-75.1652],
+          zoom: 12,
+      });
+      
+      var tiles = L.tileLayer('http://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png', {
+          attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="http://cartodb.com/attributions">CartoDB</a>',
+          subdomains: 'abcd',
+          maxZoom: 19
+      });  
+      
+      tiles.addTo(map);
+        
+    
+    var tractStyle = { color: "#D5FEFF", weight: 2, opacity: 0.2, fillOpacity: 0 }; 
+L.geoJson(tracts, {style: tractStyle}).addTo(map);
+    
+    var gentStyle = {color: "#FF7272", weight: 4, opacity: 0.5}
+      L.geoJson(tracts, { style:gentStyle,
+       
+      filter : function(feature, layer){
+              if(feature.properties.dGent){
+                  return true
+              };
+             console.log(feature);
+          },
+         
+    //step 5
+    onEachFeature : function(feature,layer) {
+    layer.on('mouseover', function() {
+    layer.setStyle({
+        fillColor: 'red',
+        fillOpacity: 1
+    });
+});
+layer.on('mouseout', function() {
+    layer.setStyle({
+        fillColor: '#FF7272',
+        fillOpacity: 0.2
+    });
+});
+        
+          var name = feature.properties.GEOID
+          var income10 = feature.properties.Income2010
+          var income19 = feature.properties.Income2019
+          var change_income = feature.properties.changeIncome
+          
+          var edu10 = feature.properties.College2010
+          var edu19 = feature.properties.College2019
+          var change_edu = feature.properties.changeEducation
+      
+      
+                                                
+          
+          var popup = ("<b>"+name+"</b><br>" +
+                      "<b>" + "Median Income 2010: " + "</b>" + income10 + "<br>" + 
+                       "<b>" + "Median Income 2019: " + "</b>" + income19 + "<br>" + 
+                       "<b>" + "Percent Change Income: " + "</b>" + change_income + "<br>" + 
+                       "<b>" + " Percent w/ Degree 2010: " + "</b>" + edu10 + "<br>" + 
+                       "<b>" + " Percent w/ Degree 2019: " + "</b>" + edu19 + "<br>" + 
+                       "<b>" + " Change in Percent w/ Degree: " + "</b>" + change_edu + "<br>")
+          layer.bindPopup(popup)
+    }
+
+
+         
+          
+          
+      }).addTo(map);
+        
+    
+          
+    </script>
+    
+</body>
+
+</html>
